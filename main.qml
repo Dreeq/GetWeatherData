@@ -5,9 +5,12 @@ import QtQuick.Layouts
 ApplicationWindow {
     visible: true
     width: 400
-    height: 300
+    height: 600
     title: "Weather App"
     property int standardSpacer: 20
+    property string apiKey: "4afb6b20c994a55bd3a73570d07516c6"
+    property var cityNames: ["New York", "Los Angeles", "Chicago" // Add more city names here
+    ]
 
     Item {
         anchors.fill: parent
@@ -42,7 +45,7 @@ ApplicationWindow {
 
             Button {
                 id: confirmButton
-                text: "Get Temperature"
+                text: "Get Weather"
                 anchors {
                     top: cityInput.bottom
                     horizontalCenter: parent.horizontalCenter
@@ -51,11 +54,10 @@ ApplicationWindow {
                 onClicked: {
                     let cityName = cityInput.text
                     if (cityName.trim() === "") {
-                        displayWeather.text = "Please enter a city name."
+                        displayTemperature.text = "Please enter a city name."
                         return
                     }
 
-                    let apiKey = "4afb6b20c994a55bd3a73570d07516c6"
                     let url = "http://api.openweathermap.org/data/2.5/weather?q="
                         + cityName + "&appid=" + apiKey
 
@@ -66,13 +68,24 @@ ApplicationWindow {
                             if (request.status === 200) {
                                 let response = JSON.parse(request.responseText)
                                 let temperature = response.main.temp - 273.15
-                                let temperatureText = "Temperature in "
-                                    + cityName + ": " + temperature.toFixed(
+                                let weatherText = ""
+                                let weatherSeparator = ""
+                                if (response.weather.length > 1) {
+                                    weatherSeparator = ", "
+                                }
+                                for (let weatherType in response.weather) {
+                                    weatherText += response.weather[weatherType].description
+                                            + weatherSeparator
+                                }
+                                let temperatureText = temperature.toFixed(
                                         2) + "°C"
-                                displayWeather.text = temperatureText
+                                displayTemperature.text = temperatureText
+                                displayWeather.text = weatherText
                             } else {
                                 console.error(
-                                            "Failed to fetch data from OpenWeatherMap API.")
+                                            "Failed to fetch data from OpenWeatherMap API.",
+                                            "The free version is used for OpenWeatherApi so if it",
+                                            "doesn't work it can be beceause of the limit of 60 requests per minute.")
                             }
                         }
                     }
@@ -81,12 +94,23 @@ ApplicationWindow {
             }
 
             TextArea {
-                id: displayWeather
+                id: displayTemperature
                 anchors {
                     top: confirmButton.bottom
                     horizontalCenter: parent.horizontalCenter
                     topMargin: standardSpacer
                 }
+                readOnly: true
+                text: ""
+            }
+            TextArea {
+                id: displayWeather
+                anchors {
+                    top: displayTemperature.bottom
+                    horizontalCenter: parent.horizontalCenter
+                    topMargin: standardSpacer
+                }
+                font.capitalization: Font.Capitalize
                 readOnly: true
                 text: ""
             }
