@@ -19,11 +19,6 @@ ApplicationWindow {
             height: parent.height - standardSpacer
             anchors.centerIn: parent
 
-            // Populates cities array.
-            Component.onCompleted: {
-                AutoComplete.loadCitiesFromFile()
-            }
-
             Text {
                 id: title
                 text: "Weather App"
@@ -47,7 +42,7 @@ ApplicationWindow {
                 enabled: true
                 placeholderText: "Enter city name"
                 onTextChanged: {
-                    AutoComplete.updateSuggestions(cityInput.text)
+                    AutoComplete.updateSuggestions(cityInput.text, citiesList)
                 }
             }
 
