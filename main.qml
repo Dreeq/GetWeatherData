@@ -1,16 +1,15 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "autocomplete.js" as AutoComplete
 
 ApplicationWindow {
     visible: true
-    width: 400
+    width: 800
     height: 600
     title: "Weather App"
     property int standardSpacer: 20
     property string apiKey: "4afb6b20c994a55bd3a73570d07516c6"
-    property var cityNames: ["New York", "Los Angeles", "Chicago" // Add more city names here
-    ]
 
     Item {
         anchors.fill: parent
@@ -19,6 +18,11 @@ ApplicationWindow {
             width: parent.width - standardSpacer
             height: parent.height - standardSpacer
             anchors.centerIn: parent
+
+            // Populates cities array.
+            Component.onCompleted: {
+                AutoComplete.loadCitiesFromFile()
+            }
 
             Text {
                 id: title
@@ -40,7 +44,65 @@ ApplicationWindow {
                     horizontalCenter: parent.horizontalCenter
                     topMargin: standardSpacer
                 }
+                enabled: true
                 placeholderText: "Enter city name"
+                onTextChanged: {
+                    AutoComplete.updateSuggestions(cityInput.text)
+                }
+            }
+
+            ListView {
+                id: suggestionsListView
+                height: parent.height
+                width: parent.width - standardSpacer
+                model: suggestionModel
+                header: Item {
+                    width: suggestionsListView.width
+                    height: 50
+                    Rectangle {
+                        id: headerItem
+                        width: parent.width
+                        height: parent.height
+                        z: 2
+                        Text {
+                            text: "Suggestions (Click the names)"
+                            anchors.centerIn: parent
+                        }
+                    }
+                }
+                anchors {
+                    top: displayWeather.bottom
+                    right: cityInput.right
+                    horizontalCenter: parent.horizontalCenter
+                    topMargin: standardSpacer
+                }
+                delegate: Item {
+                    width: suggestionsListView.width
+                    height: 30
+
+                    Rectangle {
+                        width: parent.width
+                        height: parent.height
+
+                        color: "lightgray"
+                        border.color: "gray"
+                        Text {
+                            text: modelData
+                            anchors.centerIn: parent
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                cityInput.text = modelData
+                            }
+                        }
+                    }
+                }
+            }
+
+            ListModel {
+                id: suggestionModel
             }
 
             Button {
