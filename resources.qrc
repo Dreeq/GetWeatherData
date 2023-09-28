@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Main">
+        <file>resources/cities500.txt</file>
+        <file>autocomplete.js</file>
+    </qresource>
+</RCC>
