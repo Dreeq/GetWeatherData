@@ -8,13 +8,14 @@ ApplicationWindow {
     width: 800
     height: 600
     title: "Weather App"
+    color: "black"
     property int standardSpacer: 20
     property string apiKey: "4afb6b20c994a55bd3a73570d07516c6"
 
     Item {
         anchors.fill: parent
         Rectangle {
-
+            color: "black"
             width: parent.width - standardSpacer
             height: parent.height - standardSpacer
             anchors.centerIn: parent
@@ -23,8 +24,10 @@ ApplicationWindow {
                 id: title
                 text: "Weather App"
                 font.pixelSize: 24
-                color: "steelblue"
                 font.bold: true
+                font.family: "Roboto"
+                color: Material.color(Material.Orange)
+                z: 3
                 anchors {
                     horizontalCenter: parent.horizontalCenter
                     topMargin: standardSpacer
@@ -58,10 +61,13 @@ ApplicationWindow {
                         id: headerItem
                         width: parent.width
                         height: parent.height
+                        color: "black"
+                        border.color: "gray"
                         z: 2
                         Text {
                             text: "Suggestions (Click the names)"
                             anchors.centerIn: parent
+                            color: Material.color(Material.Orange)
                         }
                     }
                 }
@@ -79,11 +85,12 @@ ApplicationWindow {
                         width: parent.width
                         height: parent.height
 
-                        color: "lightgray"
+                        color: "black"
                         border.color: "gray"
                         Text {
                             text: modelData
                             anchors.centerIn: parent
+                            color: Material.color(Material.Orange)
                         }
 
                         MouseArea {
