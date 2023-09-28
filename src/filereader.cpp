@@ -1,4 +1,3 @@
-// FileReader.cpp
 #include "FileReader.h"
 #include "QtCore/qdebug.h"
 #include <QFile>
