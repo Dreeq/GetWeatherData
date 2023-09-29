@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Main">
+        <file>components/ConfirmButton.qml</file>
+        <file>components/SuggestionListView.qml</file>
+    </qresource>
+</RCC>
