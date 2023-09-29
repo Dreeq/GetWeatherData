@@ -1,7 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import "autocomplete.js" as AutoComplete
+import "components"
+import "js/autocomplete.js" as AutoComplete
 
 ApplicationWindow {
     visible: true
@@ -19,7 +20,6 @@ ApplicationWindow {
             width: parent.width - standardSpacer
             height: parent.height - standardSpacer
             anchors.centerIn: parent
-
             Text {
                 id: title
                 text: "Weather App"
@@ -33,7 +33,6 @@ ApplicationWindow {
                     topMargin: standardSpacer
                 }
             }
-
             TextField {
                 id: cityInput
                 width: parent.width - standardSpacer
@@ -48,135 +47,62 @@ ApplicationWindow {
                     AutoComplete.updateSuggestions(cityInput.text, citiesList)
                 }
             }
-
-            ListView {
-                id: suggestionsListView
-                height: parent.height
-                width: parent.width - standardSpacer
-                model: suggestionModel
-                header: Item {
-                    width: suggestionsListView.width
-                    height: 50
-                    Rectangle {
-                        id: headerItem
-                        width: parent.width
-                        height: parent.height
-                        color: "black"
-                        border.color: "gray"
-                        z: 2
-                        Text {
-                            text: "Suggestions (Click the names)"
-                            anchors.centerIn: parent
-                            color: Material.color(Material.Orange)
-                        }
-                    }
-                }
+            SuggestionListView {
                 anchors {
-                    top: displayWeather.bottom
-                    right: cityInput.right
+                    top: weatherDisplayGrid.bottom
                     horizontalCenter: parent.horizontalCenter
                     topMargin: standardSpacer
                 }
-                delegate: Item {
-                    width: suggestionsListView.width
-                    height: 30
-
-                    Rectangle {
-                        width: parent.width
-                        height: parent.height
-
-                        color: "black"
-                        border.color: "gray"
-                        Text {
-                            text: modelData
-                            anchors.centerIn: parent
-                            color: Material.color(Material.Orange)
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                cityInput.text = modelData
-                            }
-                        }
-                    }
-                }
             }
-
             ListModel {
                 id: suggestionModel
             }
 
-            Button {
+            ConfirmButton {
                 id: confirmButton
-                text: "Get Weather"
                 anchors {
                     top: cityInput.bottom
                     horizontalCenter: parent.horizontalCenter
                     topMargin: standardSpacer
                 }
-                onClicked: {
-                    let cityName = cityInput.text
-                    if (cityName.trim() === "") {
-                        displayTemperature.text = "Please enter a city name."
-                        return
-                    }
-
-                    let url = "http://api.openweathermap.org/data/2.5/weather?q="
-                        + cityName + "&appid=" + apiKey
-
-                    let request = new XMLHttpRequest()
-                    request.open("GET", url)
-                    request.onreadystatechange = function () {
-                        if (request.readyState === XMLHttpRequest.DONE) {
-                            if (request.status === 200) {
-                                let response = JSON.parse(request.responseText)
-                                let temperature = response.main.temp - 273.15
-                                let weatherText = ""
-                                let weatherSeparator = ""
-                                if (response.weather.length > 1) {
-                                    weatherSeparator = ", "
-                                }
-                                for (let weatherType in response.weather) {
-                                    weatherText += response.weather[weatherType].description
-                                            + weatherSeparator
-                                }
-                                let temperatureText = temperature.toFixed(
-                                        2) + "°C"
-                                displayTemperature.text = temperatureText
-                                displayWeather.text = weatherText
-                            } else {
-                                console.error(
-                                            "Failed to fetch data from OpenWeatherMap API.",
-                                            "The free version is used for OpenWeatherApi so if it",
-                                            "doesn't work it can be beceause of the limit of 60 requests per minute.")
-                            }
-                        }
-                    }
-                    request.send()
-                }
             }
-
-            TextArea {
-                id: displayTemperature
+            GridLayout {
+                columns: 3
+                TextArea {
+                    id: displayGeneral
+                    font.capitalization: Font.Capitalize
+                    readOnly: true
+                    text: ""
+                }
+                id: weatherDisplayGrid
                 anchors {
                     top: confirmButton.bottom
                     horizontalCenter: parent.horizontalCenter
                     topMargin: standardSpacer
                 }
-                readOnly: true
-                text: ""
-            }
-            TextArea {
-                id: displayWeather
-                anchors {
-                    top: displayTemperature.bottom
-                    horizontalCenter: parent.horizontalCenter
-                    topMargin: standardSpacer
+                TextArea {
+                    id: displayTemperature
+                    readOnly: true
+                    text: ""
                 }
-                font.capitalization: Font.Capitalize
-                readOnly: true
-                text: ""
+                TextArea {
+                    id: displayWeather
+                    font.capitalization: Font.Capitalize
+                    readOnly: true
+                    text: ""
+                }
+                TextArea {
+                    id: displayWind
+                    font.capitalization: Font.Capitalize
+                    readOnly: true
+                    text: ""
+                }
+                TextArea {
+                    id: displayAir
+                    font.capitalization: Font.Capitalize
+                    readOnly: true
+                    text: ""
+                }
             }
         }
     }
