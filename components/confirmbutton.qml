@@ -35,7 +35,7 @@ Button {
                     }
 
                     let wind = {
-                        "Speed": response.wind.speed.toFixed(2) + "m/s",
+                        "Wind Speed": response.wind.speed.toFixed(2) + "m/s",
                         "Direction": Helpers.degreesToCardinal(
                                          response.wind.deg)
                     }
@@ -48,11 +48,11 @@ Button {
                         "Country": response.sys.country,
                         "Sunrise": Helpers.convertTimestamp(
                                        response.sys.sunrise),
-                        "Senset": Helpers.convertTimestamp(response.sys.sunset),
+                        "Sunset": Helpers.convertTimestamp(response.sys.sunset),
                         "Timezone:": (response.timezone / 3600 >= 0 ? '+' : '')
                                      + response.timezone / 3600
                     }
-                    let weatherText = ""
+                    let weatherText = "Weather: "
                     let weatherSeparator = ""
                     if (response.weather.length > 1) {
                         weatherSeparator = ", "
