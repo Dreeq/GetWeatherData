@@ -3,5 +3,7 @@
         <file>resources/cities500.txt</file>
         <file>js/autocomplete.js</file>
         <file>js/helpers.js</file>
+        <file>js/confirmbutton.js</file>
+        <file>js/lib/moment.min.js</file>
     </qresource>
 </RCC>
