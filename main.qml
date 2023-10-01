@@ -12,6 +12,7 @@ ApplicationWindow {
     color: "black"
     property int standardSpacer: 20
     property string apiKey: "4afb6b20c994a55bd3a73570d07516c6"
+    property string countryData: ""
 
     Item {
         anchors.fill: parent

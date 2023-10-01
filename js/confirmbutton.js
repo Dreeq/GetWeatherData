@@ -39,10 +39,15 @@ function getWeaterData() {
           "Wind Speed": response.wind.speed.toFixed(2) + "m/s",
           Direction: Helpers.degreesToCardinal(response.wind.deg),
         };
+
+        if (response.wind && response.wind.gust !== undefined) {
+          wind.Gust = response.wind.gust.toFixed(2) + "m/s";
+        }
+
         let air = {
-          Humidity: response.main.humidity,
-          Pressure: response.main.pressure,
-          Visibility: response.visibility,
+          Humidity: response.main.humidity + "%",
+          Pressure: response.main.pressure + "hPa",
+          Visibility: response.visibility + "m",
         };
 
         let timezoneOffset = response.timezone / 3600;
@@ -60,27 +65,59 @@ function getWeaterData() {
           timezoneOffset
         );
 
+        let countryName = response.sys.country;
+        let countryArray = JSON.parse(countriesList);
+        for (let country in countryArray) {
+          if (response.sys.country === countryArray[country]["Code"]) {
+            countryName = countryArray[country]["Name"];
+          }
+        }
+
         let general = {
-          Country: response.sys.country,
+          Country: countryName,
           "Local Time: ": cityTime.format("YYYY-MM-DD HH:mm:ss"),
           Sunrise: localSunriseTime.format("YYYY-MM-DD HH:mm:ss"),
           Sunset: localSunsetTime.format("YYYY-MM-DD HH:mm:ss"),
           "Timezone:": (timezoneOffset >= 0 ? "+" : "") + timezoneOffset,
         };
-        let weatherText = "Weather: ";
+        let weatherTypeText = "";
         let weatherSeparator = "";
         if (response.weather.length > 1) {
           weatherSeparator = ", ";
         }
         for (let weatherType in response.weather) {
-          weatherText +=
+          weatherTypeText +=
             response.weather[weatherType].description + weatherSeparator;
+        }
+
+        let weather = {
+          Wheather: weatherTypeText,
+        };
+
+        if (response.clouds && response.clouds.all !== undefined) {
+          weather.cloudiness = response.clouds.all.toFixed(2) + "%";
+        }
+        if (response.rain && response.rain["1h"] !== undefined) {
+          weather["Rain 1h"] = response.rain["1h"].toFixed(2) + "mm";
+        }
+
+        if (response.rain && response.rain["3h"] !== undefined) {
+          weather["Rain 3h"] = response.rain["3h"].toFixed(2) + "mm";
+        }
+
+        if (response.snow && response.snow["1h"] !== undefined) {
+          weather["Snow 1h"] = response.snow["1h"].toFixed(2) + "mm";
+        }
+
+        if (response.snow && response.rain["3h"] !== undefined) {
+          weather["Snow 3h"] = response.snow["3h"].toFixed(2) + "mm";
         }
 
         let temperatureText = Helpers.appendStringFromObject(temperature);
         let windText = Helpers.appendStringFromObject(wind);
         let airText = Helpers.appendStringFromObject(air);
         let generalText = Helpers.appendStringFromObject(general);
+        let weatherText = Helpers.appendStringFromObject(weather);
         displayGeneral.text = generalText;
         displayTemperature.text = temperatureText;
         displayWeather.text = weatherText;
