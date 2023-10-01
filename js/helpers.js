@@ -73,3 +73,18 @@ function convertTimestamp(timestamp) {
 
   return formattedTime;
 }
+
+/**
+ * Converts time to localtime by given offset.
+ * @param {object} timeObject Moment object
+ * @param {Number} timeOffset Time offset from utc.
+ * @returns
+ */
+function getLocalTimeFromUtc(timeObject, timeOffset) {
+  if (timeOffset < 0) {
+    timeObject = timeObject.subtract(Math.abs(timeOffset), "hours");
+  } else if (timeOffset > 0) {
+    timeObject = timeObject.add(timeOffset, "hours");
+  }
+  return timeObject;
+}

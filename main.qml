@@ -6,8 +6,8 @@ import "js/autocomplete.js" as AutoComplete
 
 ApplicationWindow {
     visible: true
-    width: 800
-    height: 600
+    width: 1024
+    height: 800
     title: "Weather App"
     color: "black"
     property int standardSpacer: 20
@@ -46,6 +46,7 @@ ApplicationWindow {
                 onTextChanged: {
                     AutoComplete.updateSuggestions(cityInput.text, citiesList)
                 }
+                Keys.onReturnPressed: confirmButton.activate()
             }
             SuggestionListView {
                 anchors {
@@ -60,11 +61,13 @@ ApplicationWindow {
 
             ConfirmButton {
                 id: confirmButton
+                text: "Get Weather"
                 anchors {
                     top: cityInput.bottom
                     horizontalCenter: parent.horizontalCenter
                     topMargin: standardSpacer
                 }
+                onClicked: confirmButton.activate()
             }
             GridLayout {
                 columns: 3
