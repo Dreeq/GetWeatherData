@@ -30,10 +30,18 @@ int main(int argc, char *argv[]) {
 
   qmlRegisterType<FileReader>("com.myapp", 1, 0, "FileReader");
 
-  FileReader fileReader;
-  QString filePath = QStringLiteral(":/Main/resources/cities500.txt");
-  QString fileContent = fileReader.readFile(filePath);
-  QStringList citiesList = fileContent.split("\n", Qt::SkipEmptyParts);
+  FileReader citiesReader;
+  QString citiesFilePath = QStringLiteral(":/Main/resources/cities500.txt");
+  QString citiesFileContent = citiesReader.readFile(citiesFilePath);
+  QStringList citiesList = citiesFileContent.split("\n", Qt::SkipEmptyParts);
+
+  FileReader countriesReader;
+  QString countriesFilePath =
+      QStringLiteral(":/Main/resources/country_codes.json");
+  QString countriesFileContent = countriesReader.readFile(countriesFilePath);
+
+  engine.rootContext()->setContextProperty("countriesList",
+                                           countriesFileContent);
 
   engine.rootContext()->setContextProperty("citiesList", citiesList);
 
