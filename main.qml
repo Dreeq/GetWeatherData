@@ -12,7 +12,6 @@ ApplicationWindow {
     color: "black"
     property int standardSpacer: 20
     property string apiKey: "4afb6b20c994a55bd3a73570d07516c6"
-    property string countryData: ""
 
     Item {
         anchors.fill: parent
@@ -71,19 +70,20 @@ ApplicationWindow {
                 onClicked: confirmButton.activate()
             }
             GridLayout {
+                id: weatherDisplayGrid
                 columns: 3
+                anchors {
+                    top: confirmButton.bottom
+                    horizontalCenter: parent.horizontalCenter
+                    topMargin: standardSpacer
+                }
                 TextArea {
                     id: displayGeneral
                     font.capitalization: Font.Capitalize
                     readOnly: true
                     text: ""
                 }
-                id: weatherDisplayGrid
-                anchors {
-                    top: confirmButton.bottom
-                    horizontalCenter: parent.horizontalCenter
-                    topMargin: standardSpacer
-                }
+
                 TextArea {
                     id: displayTemperature
                     readOnly: true

@@ -45,36 +45,6 @@ function appendStringFromObject(inputObject) {
 }
 
 /**
- * Adds leading zero if missing.
- * For example when create timestrings.
- * @param {Number} number
- * @returns
- */
-function addLeadingZero(number) {
-  return number < 10 ? `0${number}` : number;
-}
-
-/**
- * Converts timestamp to formatted date.
- * @param {Number} timestamp
- * @returns
- */
-function convertTimestamp(timestamp) {
-  const date = new Date(timestamp * 1000);
-
-  const year = date.getFullYear();
-  const month = addLeadingZero(date.getMonth() + 1);
-  const day = addLeadingZero(date.getDate());
-  const hours = addLeadingZero(date.getHours());
-  const minutes = addLeadingZero(date.getMinutes());
-  const seconds = addLeadingZero(date.getSeconds());
-
-  const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-  return formattedTime;
-}
-
-/**
  * Converts time to localtime by given offset.
  * @param {object} timeObject Moment object
  * @param {Number} timeOffset Time offset from utc.
@@ -87,4 +57,16 @@ function getLocalTimeFromUtc(timeObject, timeOffset) {
     timeObject = timeObject.add(timeOffset, "hours");
   }
   return timeObject;
+}
+
+/**
+ * Clear text areas inside of an QML item.
+ * @param {*} parentItem, Item containing text areas to be cleared.
+ */
+function clearTextAreaChildrenInformation(parentItem) {
+  for (let item of parentItem.children) {
+    if (item instanceof TextArea) {
+      item.text = "";
+    }
+  }
 }

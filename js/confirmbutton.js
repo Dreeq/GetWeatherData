@@ -5,6 +5,7 @@ function getWeaterData() {
   const kelvinToCelciusSubtractor = 273.15;
   let cityName = cityInput.text;
   if (cityName.trim() === "") {
+    Helpers.clearTextAreaChildrenInformation(weatherDisplayGrid);
     displayTemperature.text = "Please enter a city name.";
     return;
   }
@@ -124,13 +125,25 @@ function getWeaterData() {
         displayWind.text = windText;
         displayAir.text = airText;
       } else {
-        console.error(
-          "Failed to fetch data from OpenWeatherMap API.",
-          "It can be that the city is not preset in the database.",
-          "Is the city name misspelled?",
-          "The free version is used for OpenWeatherApi so if it",
-          "doesn't work it can be beceause of the limit of 60 requests per minute."
-        );
+        Helpers.clearTextAreaChildrenInformation(weatherDisplayGrid);
+        console.error("Request status:", request.status);
+        if (request.status === 429) {
+          console.error(
+            "Failed to fetch data from OpenWeatherMap API.",
+            "The free version is used for OpenWeatherApi.",
+            "The limit is 60 requests per minute."
+          );
+          displayTemperature.text =
+            "Too many requests. Please try again later.";
+        } else {
+          console.error(
+            "Failed to fetch data from OpenWeatherMap API.",
+            "The city may not be preset in the database.",
+            "Is the city name spelled wrong?"
+          );
+          displayTemperature.text = "Could not find city in weather database.";
+        }
+        return;
       }
     }
   };
