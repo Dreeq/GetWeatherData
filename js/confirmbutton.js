@@ -2,117 +2,41 @@
  * Gets weather data and populates TextAreas.
  */
 function getWeaterData() {
-  const kelvinToCelciusSubtractor = 273.15;
   let cityName = cityInput.text;
   if (cityName.trim() === "") {
     Helpers.clearTextAreaChildrenInformation(weatherDisplayGrid);
     displayTemperature.text = "Please enter a city name.";
     return;
   }
-
   let url =
     "http://api.openweathermap.org/data/2.5/weather?q=" +
     cityName +
     "&appid=" +
     apiKey;
+  makeRequest(url);
+}
 
+/**
+ * Makes request to fetch weather data from OpenWheatherMap.
+ * @param {string} url; The url to the endpoint.
+ */
+function makeRequest(url) {
   let request = new XMLHttpRequest();
   request.open("GET", url);
   request.onreadystatechange = function () {
     if (request.readyState === XMLHttpRequest.DONE) {
       if (request.status === 200) {
         let response = JSON.parse(request.responseText);
-        let temperature = {
-          Temperature:
-            (response.main.temp - kelvinToCelciusSubtractor).toFixed(2) + "°C",
-          "Feels like":
-            (response.main.feels_like - kelvinToCelciusSubtractor).toFixed(2) +
-            "°C",
-          Max:
-            (response.main.temp_max - kelvinToCelciusSubtractor).toFixed(2) +
-            "°C",
-          Min:
-            (response.main.temp_min - kelvinToCelciusSubtractor).toFixed(2) +
-            "°C",
-        };
 
-        let wind = {
-          "Wind Speed": response.wind.speed.toFixed(2) + "m/s",
-          Direction: Helpers.degreesToCardinal(response.wind.deg),
-        };
+        let temperature = getTemperature(response);
 
-        if (response.wind && response.wind.gust !== undefined) {
-          wind.Gust = response.wind.gust.toFixed(2) + "m/s";
-        }
+        let wind = getWind(response);
 
-        let air = {
-          Humidity: response.main.humidity + "%",
-          Pressure: response.main.pressure + "hPa",
-          Visibility: response.visibility + "m",
-        };
+        let air = getAir(response);
 
-        let timezoneOffset = response.timezone / 3600;
-        let currentUtcTime = moment.utc();
-        let cityTime = currentUtcTime.add(timezoneOffset, "hours");
-        let sunriseObject = moment(response.sys.sunrise * 1000).utc();
-        let sunsetObject = moment(response.sys.sunset * 1000).utc();
+        let general = getTimeAndGeneralData(response);
 
-        let localSunriseTime = Helpers.getLocalTimeFromUtc(
-          sunriseObject,
-          timezoneOffset
-        );
-        let localSunsetTime = Helpers.getLocalTimeFromUtc(
-          sunsetObject,
-          timezoneOffset
-        );
-
-        let countryName = response.sys.country;
-        let countryArray = JSON.parse(countriesList);
-        for (let country in countryArray) {
-          if (response.sys.country === countryArray[country]["Code"]) {
-            countryName = countryArray[country]["Name"];
-          }
-        }
-
-        let general = {
-          Country: countryName,
-          "Local Time: ": cityTime.format("YYYY-MM-DD HH:mm:ss"),
-          Sunrise: localSunriseTime.format("YYYY-MM-DD HH:mm:ss"),
-          Sunset: localSunsetTime.format("YYYY-MM-DD HH:mm:ss"),
-          "Timezone:": (timezoneOffset >= 0 ? "+" : "") + timezoneOffset,
-        };
-        let weatherTypeText = "";
-        let weatherSeparator = "";
-        if (response.weather.length > 1) {
-          weatherSeparator = ", ";
-        }
-        for (let weatherType in response.weather) {
-          weatherTypeText +=
-            response.weather[weatherType].description + weatherSeparator;
-        }
-
-        let weather = {
-          Wheather: weatherTypeText,
-        };
-
-        if (response.clouds && response.clouds.all !== undefined) {
-          weather.cloudiness = response.clouds.all.toFixed(2) + "%";
-        }
-        if (response.rain && response.rain["1h"] !== undefined) {
-          weather["Rain 1h"] = response.rain["1h"].toFixed(2) + "mm";
-        }
-
-        if (response.rain && response.rain["3h"] !== undefined) {
-          weather["Rain 3h"] = response.rain["3h"].toFixed(2) + "mm";
-        }
-
-        if (response.snow && response.snow["1h"] !== undefined) {
-          weather["Snow 1h"] = response.snow["1h"].toFixed(2) + "mm";
-        }
-
-        if (response.snow && response.rain["3h"] !== undefined) {
-          weather["Snow 3h"] = response.snow["3h"].toFixed(2) + "mm";
-        }
+        let weather = getWeaterType(response);
 
         let temperatureText = Helpers.appendStringFromObject(temperature);
         let windText = Helpers.appendStringFromObject(wind);
@@ -148,4 +72,127 @@ function getWeaterData() {
     }
   };
   request.send();
+}
+
+/**
+ * Gets temperature from weather object.
+ * @param {Object} response; Object of weather data.
+ * @returns Object of temperature data.
+ */
+function getTemperature(response) {
+  const kelvinToCelciusSubtractor = 273.15;
+  let temperature = {
+    Temperature:
+      (response.main.temp - kelvinToCelciusSubtractor).toFixed(2) + "°C",
+    "Feels like":
+      (response.main.feels_like - kelvinToCelciusSubtractor).toFixed(2) + "°C",
+    Max: (response.main.temp_max - kelvinToCelciusSubtractor).toFixed(2) + "°C",
+    Min: (response.main.temp_min - kelvinToCelciusSubtractor).toFixed(2) + "°C",
+  };
+  return temperature;
+}
+
+/**
+ * Gets wind from weather object.
+ * @param {Object} response; Object of weather data.
+ * @returns Object of wind data.
+ */
+function getWind(response) {
+  let wind = {
+    "Wind Speed": response.wind.speed.toFixed(2) + "m/s",
+    Direction: Helpers.degreesToCardinal(response.wind.deg),
+  };
+
+  if (response.wind && response.wind.gust !== undefined) {
+    wind.Gust = response.wind.gust.toFixed(2) + "m/s";
+  }
+  return wind;
+}
+
+/**
+ * Gets air from weather object.
+ * @param {*} response; Object of weather data.
+ * @returns Object of air data.
+ */
+function getAir(response) {
+  let air = {
+    Humidity: response.main.humidity + "%",
+    Pressure: response.main.pressure + "hPa",
+    Visibility: response.visibility + "m",
+  };
+  return air;
+}
+/**
+ * Gets time and general data from weather object.
+ * @param {*} response; Object of weather data.
+ * @returns Object with times and general data.
+ */
+function getTimeAndGeneralData(response) {
+  let timezoneOffset = response.timezone / 3600;
+  let currentUtcTime = moment.utc();
+  let cityTime = currentUtcTime.add(timezoneOffset, "hours");
+  let sunriseObject = moment(response.sys.sunrise * 1000).utc();
+  let sunsetObject = moment(response.sys.sunset * 1000).utc();
+
+  let localSunriseTime = Helpers.getLocalTimeFromUtc(
+    sunriseObject,
+    timezoneOffset
+  );
+  let localSunsetTime = Helpers.getLocalTimeFromUtc(
+    sunsetObject,
+    timezoneOffset
+  );
+
+  let countryName = response.sys.country;
+  let countryArray = JSON.parse(countriesList);
+  for (let country in countryArray) {
+    if (response.sys.country === countryArray[country]["Code"]) {
+      countryName = countryArray[country]["Name"];
+    }
+  }
+
+  let general = {
+    Country: countryName,
+    "Local Time: ": cityTime.format("YYYY-MM-DD HH:mm:ss"),
+    Sunrise: localSunriseTime.format("YYYY-MM-DD HH:mm:ss"),
+    Sunset: localSunsetTime.format("YYYY-MM-DD HH:mm:ss"),
+    "Timezone:": (timezoneOffset >= 0 ? "+" : "") + timezoneOffset,
+  };
+  return general;
+}
+
+function getWeaterType(response) {
+  let weatherTypeText = "";
+  let weatherSeparator = "";
+  if (response.weather.length > 1) {
+    weatherSeparator = ", ";
+  }
+  for (let weatherType in response.weather) {
+    weatherTypeText +=
+      response.weather[weatherType].description + weatherSeparator;
+  }
+
+  let weather = {
+    Wheather: weatherTypeText,
+  };
+
+  if (response.clouds && response.clouds.all !== undefined) {
+    weather.cloudiness = response.clouds.all.toFixed(2) + "%";
+  }
+  if (response.rain && response.rain["1h"] !== undefined) {
+    weather["Rain 1h"] = response.rain["1h"].toFixed(2) + "mm";
+  }
+
+  if (response.rain && response.rain["3h"] !== undefined) {
+    weather["Rain 3h"] = response.rain["3h"].toFixed(2) + "mm";
+  }
+
+  if (response.snow && response.snow["1h"] !== undefined) {
+    weather["Snow 1h"] = response.snow["1h"].toFixed(2) + "mm";
+  }
+
+  if (response.snow && response.rain["3h"] !== undefined) {
+    weather["Snow 3h"] = response.snow["3h"].toFixed(2) + "mm";
+  }
+  return weather;
 }
